@@ -1,0 +1,7 @@
+#Fri Jul 12 09:58:53 CST 2024
+base.0=/Users/liuming/Code/Android-SDK@4.15.82065_20240508/UniPlugin-Hello-AS/app/build/intermediates/dex/debug/minifyDebugWithR8/classes.dex
+base.1=/Users/liuming/Code/Android-SDK@4.15.82065_20240508/UniPlugin-Hello-AS/app/build/intermediates/dex/debug/minifyDebugWithR8/classes2.dex
+path.0=classes.dex
+path.1=classes2.dex
+renamed.0=classes.dex
+renamed.1=classes2.dex
