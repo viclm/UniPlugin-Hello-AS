@@ -47,8 +47,10 @@ public class TestModule extends UniModule {
     // run JS thread
     @UniJSMethod(uiThread = false)
     public JSONObject testSyncFunc() {
+        Log.e(TAG, "testSyncFunc called");
         JSONObject data = new JSONObject();
         data.put("code", "success");
+        Log.e(TAG, "testSyncFunc result--" + data);
         return data;
     }
 
