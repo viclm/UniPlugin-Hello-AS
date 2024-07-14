@@ -14,6 +14,7 @@ import android.widget.Toast;
  * 在原生 Android 环境中使用 PaddleOCRModule 进行 OCR 功能的演示,展示如何初始化和识别文本。
  */
 public class NativePageActivity extends Activity {
+    private static final String IMAGE_PATH = "/path/to/your/image.png";
     private PaddleOCRModule ocrModule;
     private Context context;
 
@@ -57,7 +58,7 @@ public class NativePageActivity extends Activity {
     }
 
     private void recognizeImage() {
-        ocrModule.recognizeText("/path/to/your/image.png", new PaddleOCRPlugin.OCRCallback() {
+        ocrModule.recognizeText(IMAGE_PATH, new PaddleOCRPlugin.OCRCallback() {
             @Override
             public void onSuccess(String result) {
                 Toast.makeText(context, "识别结果：" + result, Toast.LENGTH_LONG).show();
@@ -70,3 +71,4 @@ public class NativePageActivity extends Activity {
         });
     }
 }
+

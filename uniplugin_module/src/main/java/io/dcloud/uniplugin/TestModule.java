@@ -21,11 +21,9 @@ import io.dcloud.feature.uniapp.common.UniModule;
  * 以及初始化 OCR 识别功能。
  */
 public class TestModule extends UniModule {
-
-    String TAG = "TestModule";
-    public static int REQUEST_CODE = 1000;
+    private static final String TAG = "TestModule";
     private static final String APP_KEY_NAME = "dcloud_appkey";
-
+    public static int REQUEST_CODE = 1000;
     private Context context;
 
     // 传递上下文
