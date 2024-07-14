@@ -21,15 +21,31 @@ import com.equationl.fastdeployocr.callback.OcrRunCallback;
  */
 public class PaddleOCRPlugin {
 
-    private OCR ocr;
-    private Context context;
+    private final OCR ocr;
 
     public PaddleOCRPlugin(Context context) {
-        this.context = context;
         this.ocr = new OCR(context);
     }
 
     public void initModel(final OCRCallback callback) {
+        OcrConfig config = getOcrConfig();
+
+        ocr.initModel(config, new OcrInitCallback() {
+            @Override
+            public void onSuccess() {
+                Log.i("PaddleOCRPlugin", "模型加载成功");
+                callback.onSuccess("模型加载成功");
+            }
+
+            @Override
+            public void onFail(@NonNull Throwable e) {
+                Log.e("PaddleOCRPlugin", "模型加载失败: " + e.getMessage(), e);
+                callback.onFail(e);
+            }
+        });
+    }
+
+    private static @NonNull OcrConfig getOcrConfig() {
         OcrConfig config = new OcrConfig();
         config.setModelPath("models"); // assets/models 目录
         config.setClsModelFileName("cls");
@@ -41,20 +57,7 @@ public class PaddleOCRPlugin {
         config.setRecRunPrecision(RunPrecision.LiteFp16);
         config.setDetRunPrecision(RunPrecision.LiteFp16);
         config.setClsRunPrecision(RunPrecision.LiteFp16);
-
-        ocr.initModel(config, new OcrInitCallback() {
-            @Override
-            public void onSuccess() {
-                Log.i("PaddleOCRPlugin", "模型加载成功");
-                callback.onSuccess("模型加载成功");
-            }
-
-            @Override
-            public void onFail(Throwable e) {
-                Log.e("PaddleOCRPlugin", "模型加载失败: " + e.getMessage(), e);
-                callback.onFail(e);
-            }
-        });
+        return config;
     }
 
     public void recognizeText(String imagePath, final OCRCallback callback) {
@@ -67,7 +70,7 @@ public class PaddleOCRPlugin {
             }
 
             @Override
-            public void onFail(Throwable e) {
+            public void onFail(@NonNull Throwable e) {
                 callback.onFail(e);
             }
         });
