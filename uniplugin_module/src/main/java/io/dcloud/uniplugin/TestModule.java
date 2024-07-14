@@ -24,6 +24,7 @@ public class TestModule extends UniModule {
 
     String TAG = "TestModule";
     public static int REQUEST_CODE = 1000;
+    private static final String APP_KEY_NAME = "dcloud_appkey";
 
     private Context context;
 
@@ -90,10 +91,11 @@ public class TestModule extends UniModule {
         try {
             ApplicationInfo ai = context.getPackageManager().getApplicationInfo(context.getPackageName(), PackageManager.GET_META_DATA);
             Bundle bundle = ai.metaData;
-            appKey = bundle.getString("dcloud_appkey");
+            appKey = bundle.getString(APP_KEY_NAME);
         } catch (PackageManager.NameNotFoundException e) {
             Log.e(TAG, "获取 AppKey 失败: " + e.getMessage(), e);
         }
         return appKey;
     }
 }
+
