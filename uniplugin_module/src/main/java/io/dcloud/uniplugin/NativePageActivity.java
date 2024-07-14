@@ -37,7 +37,7 @@ public class NativePageActivity extends Activity {
         TestModule testModule = new TestModule();
         context = getApplicationContext();
         testModule.attachContext(context);
-        testModule.initOCR();
+        testModule.printAppKey();
 
         ocrModule = new PaddleOCRModule();
         ocrModule.attachContext(context); // 确保上下文被正确传递

@@ -72,31 +72,17 @@ public class TestModule extends UniModule {
     }
 
     @UniJSMethod(uiThread = true)
-    public void initOCR() {
-        Log.d(TAG, "initOCR called");
+    public void printAppKey() {
+        Log.d(TAG, "printAppKey called");
 
         if (context == null) {
-            Log.e(TAG, "Context is null, cannot initialize OCR");
+            Log.e(TAG, "Context is null, cannot get AppKey");
             return;
         }
 
         String appKey = getAppKey(context);
         Log.d("App", "AppKey from manifest: " + appKey);
-
-        PaddleOCRPlugin ocrPlugin = new PaddleOCRPlugin(context);
-        ocrPlugin.initModel(new PaddleOCRPlugin.OCRCallback() {
-            @Override
-            public void onSuccess(String result) {
-                Log.d(TAG, "OCR初始化成功");
-                Toast.makeText(context, "OCR初始化成功", Toast.LENGTH_SHORT).show();
-            }
-
-            @Override
-            public void onFail(Throwable e) {
-                Log.e(TAG, "OCR初始化失败：" + e.getMessage());
-                Toast.makeText(context, "OCR初始化失败：" + e.getMessage(), Toast.LENGTH_LONG).show();
-            }
-        });
+        Toast.makeText(context, "AppKey: " + appKey, Toast.LENGTH_SHORT).show();
     }
 
     private String getAppKey(Context context) {
