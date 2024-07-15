@@ -39,7 +39,7 @@ android {
         config {
             keyAlias 'testalias'
             keyPassword '123456'
-            storeFile file('../uniplugin_module/src/main/java/io/dcloud/uniplugin/test.keystore')
+            storeFile file('test.keystore')
             storePassword '123456'
             v1SigningEnabled true
             v2SigningEnabled true
