@@ -20,7 +20,16 @@ public class PaddleOCRModule extends UniModule {
     @UniJSMethod(uiThread = true)
     public void initOCR(PaddleOCRPlugin.OCRCallback callback) {
         if (context == null) {
-            context = mUniSDKInstance.getContext();
+            if (mUniSDKInstance != null) {
+                context = mUniSDKInstance.getContext();
+            } else {
+                // 错误处理，确保 context 不为空
+                Toast.makeText(context, "mUniSDKInstance 未初始化", Toast.LENGTH_LONG).show();
+                if (callback != null) {
+                    callback.onFail(new NullPointerException("mUniSDKInstance 未初始化"));
+                }
+                return;
+            }
         }
         paddleOCRPlugin = new PaddleOCRPlugin(context);
         paddleOCRPlugin.initModel(new PaddleOCRPlugin.OCRCallback() {
@@ -48,7 +57,11 @@ public class PaddleOCRModule extends UniModule {
             paddleOCRPlugin.recognizeText(imagePath, new PaddleOCRPlugin.OCRCallback() {
                 @Override
                 public void onSuccess(String result) {
-                    Toast.makeText(mUniSDKInstance.getContext(), "识别结果：" + result, Toast.LENGTH_LONG).show();
+                    if (mUniSDKInstance != null) {
+                        Toast.makeText(mUniSDKInstance.getContext(), "识别结果：" + result, Toast.LENGTH_LONG).show();
+                    } else {
+                        Toast.makeText(context, "识别结果：" + result, Toast.LENGTH_LONG).show();
+                    }
                     if (ocrCallback != null) {
                         ocrCallback.onSuccess(result);
                     }
@@ -56,14 +69,22 @@ public class PaddleOCRModule extends UniModule {
 
                 @Override
                 public void onFail(Throwable e) {
-                    Toast.makeText(mUniSDKInstance.getContext(), "识别失败：" + e.getMessage(), Toast.LENGTH_LONG).show();
+                    if (mUniSDKInstance != null) {
+                        Toast.makeText(mUniSDKInstance.getContext(), "识别失败：" + e.getMessage(), Toast.LENGTH_LONG).show();
+                    } else {
+                        Toast.makeText(context, "识别失败：" + e.getMessage(), Toast.LENGTH_LONG).show();
+                    }
                     if (ocrCallback != null) {
                         ocrCallback.onFail(e);
                     }
                 }
             });
         } else {
-            Toast.makeText(mUniSDKInstance.getContext(), "OCR尚未初始化", Toast.LENGTH_LONG).show();
+            if (mUniSDKInstance != null) {
+                Toast.makeText(mUniSDKInstance.getContext(), "OCR尚未初始化", Toast.LENGTH_LONG).show();
+            } else {
+                Toast.makeText(context, "OCR尚未初始化", Toast.LENGTH_LONG).show();
+            }
         }
     }
 }
