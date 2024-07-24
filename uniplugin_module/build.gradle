@@ -3,6 +3,7 @@ apply plugin: 'org.jetbrains.kotlin.android'
 
 android {
     compileSdk 34 // 更新 compileSdkVersion
+    ndkVersion '21.1.6352462'
     defaultConfig {
         minSdk 24
         targetSdk 34 // 更新 targetSdkVersion

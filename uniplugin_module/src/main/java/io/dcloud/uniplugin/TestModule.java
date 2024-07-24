@@ -25,6 +25,8 @@ public class TestModule extends UniModule {
     private static final String APP_KEY_NAME = "dcloud_appkey";
     public static int REQUEST_CODE = 1000;
     private Context context;
+    private static final String IMAGE_PATH = "pics/3.jpg";
+    private PaddleOCRModule ocrModule;
 
     // 传递上下文
     public void attachContext(Context context) {
@@ -35,12 +37,48 @@ public class TestModule extends UniModule {
     @UniJSMethod(uiThread = true)
     public void testAsyncFunc(JSONObject options, UniJSCallback callback) {
         Log.e(TAG, "testAsyncFunc--" + options);
+
+        context = mUniSDKInstance.getContext();
+
+        ocrModule = new PaddleOCRModule();
+        ocrModule.attachContext(context); // 确保上下文被正确传递
+        ocrModule.initOCR(new PaddleOCRPlugin.OCRCallback() {
+            @Override
+            public void onSuccess(String result) {
+                Toast.makeText(context, "模型加载成功", Toast.LENGTH_LONG).show();
+                // 模型初始化成功后直接执行识别图片的功能
+                recognizeImage();
+                JSONObject data = new JSONObject();
+                data.put("code", "success");
+                callback.invoke(data);
+            }
+
+            @Override
+            public void onFail(Throwable e) {
+                Toast.makeText(context, "模型加载失败：" + e.getMessage(), Toast.LENGTH_LONG).show();
+            }
+        });
+
         if (callback != null) {
             JSONObject data = new JSONObject();
             data.put("code", "success");
             callback.invoke(data);
             // callback.invokeAndKeepAlive(data);
         }
+    }
+
+    private void recognizeImage() {
+        ocrModule.recognizeText(IMAGE_PATH, new PaddleOCRPlugin.OCRCallback() {
+            @Override
+            public void onSuccess(String result) {
+                Toast.makeText(context, "识别结果：" + result, Toast.LENGTH_LONG).show();
+            }
+
+            @Override
+            public void onFail(Throwable e) {
+                Toast.makeText(context, "识别失败：" + e.getMessage(), Toast.LENGTH_LONG).show();
+            }
+        });
     }
 
     // run JS thread

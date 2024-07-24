@@ -18,6 +18,7 @@
 	</view>
 </template>
 <script>
+	// const CardApi = uni.requireNativePlugin?.('TestModule');
 	export default {
 		data() {
 			return {
@@ -42,7 +43,9 @@
 				navigateFlag: false
 			}
 		},
-		onLoad() {},
+		onLoad() {
+			// CardApi.gotoNativePage()
+		},
 		methods: {
 			triggerCollapse(e) {
 				if (!this.list[e].pages) {
