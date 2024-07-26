@@ -46,11 +46,17 @@ public class TestModule extends UniModule {
             @Override
             public void onSuccess(String result) {
                 Toast.makeText(context, "模型加载成功", Toast.LENGTH_LONG).show();
-                // 模型初始化成功后直接执行识别图片的功能
-                recognizeImage();
-                JSONObject data = new JSONObject();
-                data.put("code", "success");
-                callback.invoke(data);
+                ocrModule.recognizeText(IMAGE_PATH, new PaddleOCRPlugin.OCRCallback() {
+                    @Override
+                    public void onSuccess(String result) {
+                        Toast.makeText(context, "识别结果：" + result, Toast.LENGTH_LONG).show();
+                    }
+
+                    @Override
+                    public void onFail(Throwable e) {
+                        Toast.makeText(context, "识别失败：" + e.getMessage(), Toast.LENGTH_LONG).show();
+                    }
+                });
             }
 
             @Override
