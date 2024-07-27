@@ -16,6 +16,7 @@ import com.equationl.fastdeployocr.bean.OcrResult;
 import com.equationl.fastdeployocr.callback.OcrInitCallback;
 import com.equationl.fastdeployocr.callback.OcrRunCallback;
 
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -69,27 +70,38 @@ public class PaddleOCRPlugin {
         return config;
     }
 
-    public void recognizeText(String imagePath, final OCRCallback callback) {
-        Bitmap bitmap = getBitmapFromAssets(imagePath);
-        if (bitmap == null) {
-            callback.onFail(new IOException("无法加载图片: " + imagePath));
-            Log.e(TAG, "无法加载图片: " + imagePath);
-            return;
-        }
-        ocr.run(bitmap, new OcrRunCallback() {
-            @Override
-            public void onSuccess(@NonNull OcrResult result) {
-                String simpleText = result.getSimpleText();
-                Log.i(TAG, "识别结果：" + simpleText);
-                callback.onSuccess(simpleText);
-            }
+    public void recognizeText(String imagePath, final OCRCallback callback) throws IOException {
+//        Bitmap bitmap = getBitmapFromAssets(imagePath);
 
-            @Override
-            public void onFail(@NonNull Throwable e) {
-                Log.e(TAG, "识别失败: " + e.getMessage(), e);
-                callback.onFail(e);
+        try {
+            Log.e(TAG, "加载图片: " + imagePath);
+            FileInputStream fis = new FileInputStream(imagePath);
+            Bitmap bitmap = BitmapFactory.decodeStream(fis);
+            fis.close();
+
+            if (bitmap == null) {
+                Log.e(TAG, "无法加载图片: " + imagePath);
+                callback.onFail(new IOException("无法加载图片: " + imagePath));
+                return;
             }
-        });
+            ocr.run(bitmap, new OcrRunCallback() {
+                @Override
+                public void onSuccess(@NonNull OcrResult result) {
+                    String simpleText = result.getSimpleText();
+                    Log.i(TAG, "识别结果：" + simpleText);
+                    callback.onSuccess(simpleText);
+                }
+
+                @Override
+                public void onFail(@NonNull Throwable e) {
+                    Log.e(TAG, "识别失败: " + e.getMessage(), e);
+                    callback.onFail(e);
+                }
+            });
+
+        } catch (IOException e) {
+            Log.e("PaddleOCRPlugin", "Error reading file: " + e.getMessage());
+        }
     }
 
     private Bitmap getBitmapFromAssets(String fileName) {

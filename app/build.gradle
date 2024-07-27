@@ -3,7 +3,6 @@ apply plugin: 'com.android.application'
 android {
     namespace 'uni.liuming.demo' // 添加 namespace 以避免警告
     compileSdk 34 // 更新 compileSdkVersion
-    ndkVersion '21.1.6352462'
     defaultConfig {
         applicationId "uni.liuming.demo"
         minSdk 24 // 更新 minSdkVersion
@@ -109,5 +108,5 @@ dependencies {
 //    implementation project(':uniplugin_richalert')
 
     // OCR
-    implementation 'com.github.equationl.paddleocr4android:fastdeplyocr:v1.2.7'
+//    implementation 'com.github.equationl.paddleocr4android:fastdeplyocr:v1.2.7'
 }

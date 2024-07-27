@@ -5,11 +5,15 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
+import android.nfc.Tag;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.Toast;
 
 import com.alibaba.fastjson.JSONObject;
+
+import java.io.File;
+import java.io.IOException;
 
 import io.dcloud.feature.uniapp.annotation.UniJSMethod;
 import io.dcloud.feature.uniapp.bridge.UniJSCallback;
@@ -22,11 +26,10 @@ import io.dcloud.feature.uniapp.common.UniModule;
  */
 public class TestModule extends UniModule {
     private static final String TAG = "TestModule";
-    private static final String APP_KEY_NAME = "dcloud_appkey";
-    public static int REQUEST_CODE = 1000;
     private Context context;
     private static final String IMAGE_PATH = "pics/3.jpg";
-    private PaddleOCRModule ocrModule;
+//    private PaddleOCRModule ocrModule;
+    private PaddleOCRPlugin paddleOCRPlugin;
 
     // 传递上下文
     public void attachContext(Context context) {
@@ -34,55 +37,90 @@ public class TestModule extends UniModule {
     }
 
     // run ui thread
-    @UniJSMethod(uiThread = true)
-    public void testAsyncFunc(JSONObject options, UniJSCallback callback) {
-        Log.e(TAG, "testAsyncFunc--" + options);
+    @UniJSMethod(uiThread = false)
+    public void initOCR(UniJSCallback callback) {
+        Log.i(TAG, "initOCR--");
 
         context = mUniSDKInstance.getContext();
 
-        ocrModule = new PaddleOCRModule();
-        ocrModule.attachContext(context); // 确保上下文被正确传递
-        ocrModule.initOCR(new PaddleOCRPlugin.OCRCallback() {
+        paddleOCRPlugin = new PaddleOCRPlugin(context);
+        paddleOCRPlugin.initModel(new PaddleOCRPlugin.OCRCallback() {
             @Override
             public void onSuccess(String result) {
-                Toast.makeText(context, "模型加载成功", Toast.LENGTH_LONG).show();
-                ocrModule.recognizeText(IMAGE_PATH, new PaddleOCRPlugin.OCRCallback() {
-                    @Override
-                    public void onSuccess(String result) {
-                        Toast.makeText(context, "识别结果：" + result, Toast.LENGTH_LONG).show();
-                    }
-
-                    @Override
-                    public void onFail(Throwable e) {
-                        Toast.makeText(context, "识别失败：" + e.getMessage(), Toast.LENGTH_LONG).show();
-                    }
-                });
+                Log.i(TAG, "模型加载成功" + callback);
+                if (callback != null) {
+                    Log.i(TAG, "模型加载成功");
+                    JSONObject data = new JSONObject();
+                    data.put("code", 0);
+                    data.put("message", "模型加载成功");
+                    callback.invoke(data);
+                }
             }
 
             @Override
             public void onFail(Throwable e) {
-                Toast.makeText(context, "模型加载失败：" + e.getMessage(), Toast.LENGTH_LONG).show();
+                if (callback != null) {
+                    Log.i(TAG, "模型加载失败：" + e.getMessage());
+                    JSONObject data = new JSONObject();
+                    data.put("code", 1);
+                    data.put("message", "模型加载失败：" + e.getMessage());
+                    callback.invoke(data);
+                }
             }
         });
 
-        if (callback != null) {
-            JSONObject data = new JSONObject();
-            data.put("code", "success");
-            callback.invoke(data);
-            // callback.invokeAndKeepAlive(data);
-        }
+//        ocrModule = new PaddleOCRModule();
+//        ocrModule.attachContext(context); // 确保上下文被正确传递
+//        ocrModule.initOCR(new PaddleOCRPlugin.OCRCallback() {
+//            @Override
+//            public void onSuccess(String result) {
+//                Log.i(TAG, "模型加载成功");
+//                JSONObject data = new JSONObject();
+//                data.put("code", 0);
+//                data.put("message", "模型加载成功");
+//                callback.invoke(data);
+//            }
+//
+//            @Override
+//            public void onFail(Throwable e) {
+//                Log.i(TAG, "模型加载失败：" + e.getMessage());
+//                JSONObject data = new JSONObject();
+//                data.put("code", 1);
+//                data.put("message", "模型加载失败：" + e.getMessage());
+//                callback.invoke(data);
+//            }
+//        });
     }
 
-    private void recognizeImage() {
-        ocrModule.recognizeText(IMAGE_PATH, new PaddleOCRPlugin.OCRCallback() {
+    @UniJSMethod(uiThread = false)
+    public void recognizeText(JSONObject options, UniJSCallback callback) throws IOException {
+
+        File file = new File(options.getString("filepath"));
+        boolean exists = file.exists();
+        if (exists) {
+            Log.i(TAG, "File exists: " + options.getString("filepath"));
+        } else {
+            Log.i(TAG, "File does not exist: " + options.getString("filepath"));
+        }
+
+        paddleOCRPlugin.recognizeText(options.getString("filepath"), new PaddleOCRPlugin.OCRCallback() {
             @Override
             public void onSuccess(String result) {
-                Toast.makeText(context, "识别结果：" + result, Toast.LENGTH_LONG).show();
+                Log.i(TAG, "识别结果：" + result);
+                JSONObject data = new JSONObject();
+                data.put("code", 0);
+                data.put("message", "识别结果");
+                data.put("data", result);
+                callback.invoke(data);
             }
 
             @Override
             public void onFail(Throwable e) {
-                Toast.makeText(context, "识别失败：" + e.getMessage(), Toast.LENGTH_LONG).show();
+                Log.i(TAG, "识别失败：" + e.getMessage());
+                JSONObject data = new JSONObject();
+                data.put("code", 1);
+                data.put("message", "识别失败：" + e.getMessage());
+                callback.invoke(data);
             }
         });
     }
@@ -95,49 +133,6 @@ public class TestModule extends UniModule {
         data.put("code", "success");
         Log.e(TAG, "testSyncFunc result--" + data);
         return data;
-    }
-
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == REQUEST_CODE && data.hasExtra("respond")) {
-            Log.e("TestModule", "原生页面返回----" + data.getStringExtra("respond"));
-        } else {
-            super.onActivityResult(requestCode, resultCode, data);
-        }
-    }
-
-    @UniJSMethod(uiThread = true)
-    public void gotoNativePage() {
-        if (mUniSDKInstance != null && mUniSDKInstance.getContext() != null) {
-            Intent intent = new Intent(mUniSDKInstance.getContext(), NativePageActivity.class);
-            ((Activity) mUniSDKInstance.getContext()).startActivityForResult(intent, REQUEST_CODE);
-        }
-    }
-
-    @UniJSMethod(uiThread = true)
-    public void printAppKey() {
-        Log.d(TAG, "printAppKey called");
-
-        if (context == null) {
-            Log.e(TAG, "Context is null, cannot get AppKey");
-            return;
-        }
-
-        String appKey = getAppKey(context);
-        Log.d("App", "AppKey from manifest: " + appKey);
-        Toast.makeText(context, "AppKey: " + appKey, Toast.LENGTH_SHORT).show();
-    }
-
-    private String getAppKey(Context context) {
-        String appKey = null;
-        try {
-            ApplicationInfo ai = context.getPackageManager().getApplicationInfo(context.getPackageName(), PackageManager.GET_META_DATA);
-            Bundle bundle = ai.metaData;
-            appKey = bundle.getString(APP_KEY_NAME);
-        } catch (PackageManager.NameNotFoundException e) {
-            Log.e(TAG, "获取 AppKey 失败: " + e.getMessage(), e);
-        }
-        return appKey;
     }
 }
 

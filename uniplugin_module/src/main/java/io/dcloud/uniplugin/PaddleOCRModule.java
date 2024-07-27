@@ -3,6 +3,8 @@ package io.dcloud.uniplugin;
 import android.content.Context;
 import android.widget.Toast;
 
+import java.io.IOException;
+
 import io.dcloud.feature.uniapp.common.UniModule;
 import io.dcloud.feature.uniapp.annotation.UniJSMethod;
 
@@ -52,7 +54,7 @@ public class PaddleOCRModule extends UniModule {
     }
 
     @UniJSMethod(uiThread = true)
-    public void recognizeText(String imagePath, PaddleOCRPlugin.OCRCallback ocrCallback) {
+    public void recognizeText(String imagePath, PaddleOCRPlugin.OCRCallback ocrCallback) throws IOException {
         if (paddleOCRPlugin != null) {
             paddleOCRPlugin.recognizeText(imagePath, new PaddleOCRPlugin.OCRCallback() {
                 @Override
