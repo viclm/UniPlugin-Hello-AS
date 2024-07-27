@@ -1,0 +1,22 @@
+{
+	"name": "nativeplus",
+	"id": "nativeplus",
+	"version": "0.0.3",
+	"description": "native plus",
+	"_dp_type":"nativeplugin",
+	"_dp_nativeplugin":{
+		"android": {
+			"plugins": [
+				{
+				  "type": "module",
+				  "name": "TestModule",
+				  "class": "io.dcloud.uniplugin.TestModule"
+				}
+			],
+			"integrateType": "aar",
+			"dependencies": [
+				"com.github.equationl.paddleocr4android:fastdeplyocr:1.2.8"
+			]
+		}
+	}
+}

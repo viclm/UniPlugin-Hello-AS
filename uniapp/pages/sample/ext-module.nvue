@@ -1,0 +1,53 @@
+<template>
+	<div>
+		<button type="primary" @click="selectFile">选择图片</button>
+	</div>
+</template>
+
+<script>	
+	// 获取 module 
+	var testModule = uni.requireNativePlugin("TestModule")
+	const modal = uni.requireNativePlugin('modal');
+	export default {
+		onLoad() {
+			plus.globalEvent.addEventListener('TestEvent', function(e){
+				modal.toast({
+					message: "TestEvent收到："+e.msg,
+					duration: 1.5
+				});
+			});
+			// setTimeout(() => {
+				testModule.initOCR((res) => {
+					modal.toast({
+						message: ret,
+						duration: 3
+					})
+				})
+			// }, 1000)
+		},
+		methods: {
+			selectFile() {
+				uni.chooseImage({
+					count:1,
+					success(res) {
+						uni.saveFile({
+							tempFilePath: res.tempFilePaths[0],
+							success: (res) => {
+								testModule.recognizeText({
+									'filepath': plus.io.convertLocalFileSystemURL(res.savedFilePath),
+								},
+								(ret) => {
+									modal.toast({
+										message: ret,
+										duration: 3
+									});
+									console.log(ret)
+								})
+							}
+						})
+					}
+				})
+			}
+		}
+	}
+</script>
