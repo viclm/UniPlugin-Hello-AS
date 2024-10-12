@@ -1,6 +1,7 @@
 <template>
 	<div>
-		<button type="primary" @click="selectFile">选择图片</button>
+		<button type="primary" @click="selectFileOCR">OCR</button>
+		<button type="primary" @click="selectFileBARCODE">BARCODE</button>
 	</div>
 </template>
 
@@ -16,32 +17,57 @@
 					duration: 1.5
 				});
 			});
-			// setTimeout(() => {
+			setTimeout(() => {
 				testModule.initOCR((res) => {
 					modal.toast({
 						message: ret,
 						duration: 3
 					})
 				})
-			// }, 1000)
+			}, 0)
 		},
 		methods: {
-			selectFile() {
+			selectFileOCR() {
 				uni.chooseImage({
 					count:1,
+					sizeType: ['compressed'],
 					success(res) {
 						uni.saveFile({
 							tempFilePath: res.tempFilePaths[0],
 							success: (res) => {
+								const timeStart = Date.now()
 								testModule.recognizeText({
 									'filepath': plus.io.convertLocalFileSystemURL(res.savedFilePath),
 								},
 								(ret) => {
-									modal.toast({
-										message: ret,
-										duration: 3
-									});
-									console.log(ret)
+									// modal.toast({
+									// 	message: ret,
+									// 	duration: 10
+									// });
+									uni.showModal({
+										content: `time: ${Date.now() - timeStart}ms, result: ${ret.data}`
+									})
+								})
+							}
+						})
+					}
+				})
+			},
+			selectFileBARCODE() {
+				uni.chooseImage({
+					count:1,
+					sizeType: ['compressed'],
+					success(res) {
+						uni.saveFile({
+							tempFilePath: res.tempFilePaths[0],
+							success: (res) => {
+								const timeStart = Date.now()
+								testModule.recognizeBarcode({
+									'filepath': plus.io.convertLocalFileSystemURL(res.savedFilePath),
+								}, (ret) => {
+									uni.showModal({
+										content: `time: ${Date.now() - timeStart}ms, result: ${ret.data[0]?.displayValue}`
+									})
 								})
 							}
 						})

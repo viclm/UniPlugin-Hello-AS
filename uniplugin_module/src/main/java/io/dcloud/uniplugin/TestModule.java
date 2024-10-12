@@ -5,15 +5,30 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.nfc.Tag;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+
 import com.alibaba.fastjson.JSONObject;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.List;
+
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
+import com.google.mlkit.vision.barcode.common.Barcode;
+import com.google.mlkit.vision.barcode.BarcodeScanner;
+import com.google.mlkit.vision.barcode.BarcodeScannerOptions;
+import com.google.mlkit.vision.barcode.BarcodeScanning;
+import com.google.mlkit.vision.common.InputImage;
 
 import io.dcloud.feature.uniapp.annotation.UniJSMethod;
 import io.dcloud.feature.uniapp.bridge.UniJSCallback;
@@ -123,6 +138,55 @@ public class TestModule extends UniModule {
                 callback.invoke(data);
             }
         });
+    }
+
+    @UniJSMethod(uiThread = false)
+    public void recognizeBarcode(JSONObject options, UniJSCallback callback) throws IOException {
+
+        File file = new File(options.getString("filepath"));
+        boolean exists = file.exists();
+        if (exists) {
+            Log.i(TAG, "File exists: " + options.getString("filepath"));
+        } else {
+            Log.i(TAG, "File does not exist: " + options.getString("filepath"));
+        }
+
+
+        FileInputStream fis = new FileInputStream(file);
+        Bitmap bitmap = BitmapFactory.decodeStream(fis);
+        fis.close();
+
+        InputImage image = InputImage.fromBitmap(bitmap, 0);
+
+        BarcodeScannerOptions barcodeOptions = new BarcodeScannerOptions.Builder()
+                .setBarcodeFormats(
+                        Barcode.FORMAT_CODE_128)
+                .build();
+
+        BarcodeScanner scanner = BarcodeScanning.getClient();
+
+        Task<List<Barcode>> result = scanner.process(image)
+                .addOnSuccessListener(new OnSuccessListener<List<Barcode>>() {
+                    @Override
+                    public void onSuccess(List<Barcode> barcodes) {
+                        JSONObject data = new JSONObject();
+                        data.put("code", 0);
+                        data.put("message", "识别结果");
+                        data.put("data", barcodes);
+                        Log.i(TAG, "识别结果：" + data);
+                        callback.invoke(data);
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.i(TAG, "识别失败：" + e.getMessage());
+                        JSONObject data = new JSONObject();
+                        data.put("code", 1);
+                        data.put("message", "识别失败：" + e.getMessage());
+                        callback.invoke(data);
+                    }
+                });
     }
 
     // run JS thread

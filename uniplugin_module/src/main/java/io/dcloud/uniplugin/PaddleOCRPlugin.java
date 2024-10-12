@@ -58,15 +58,16 @@ public class PaddleOCRPlugin {
         // .pdiparams：模型参数文件,包含了模型的权重等参数信息。
         // 这两个文件是一起使用的,一个定义了模型的结构,另一个定义了模型的具体参数。
         config.setModelPath("models"); // assets/models 目录
-        config.setClsModelFileName("cls"); // 文本方向分类模型的文件名前缀为 cls
-        config.setDetModelFileName("det"); // 检测模型的文件名前缀为 det
+//        config.setClsModelFileName("cls"); // 文本方向分类模型的文件名前缀为 cls
+//        config.setDetModelFileName("det"); // 检测模型的文件名前缀为 det
         config.setRecModelFileName("rec"); // 识别模型的文件名前缀为 rec
         config.setRunType(RunType.All);
         config.setCpuPowerMode(LitePowerMode.LITE_POWER_FULL);
-        config.setDrwwTextPositionBox(true);
-        config.setRecRunPrecision(RunPrecision.LiteFp16);
-        config.setDetRunPrecision(RunPrecision.LiteFp16);
-        config.setClsRunPrecision(RunPrecision.LiteFp16);
+//        config.setDrwwTextPositionBox(true);
+//        config.setCpuThreadNum(1);
+        config.setRecRunPrecision(RunPrecision.LiteInt8);
+//        config.setDetRunPrecision(RunPrecision.LiteInt8);
+//        config.setClsRunPrecision(RunPrecision.LiteInt8);
         return config;
     }
 
